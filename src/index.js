@@ -1,35 +1,108 @@
 import { puzzleRowCellSize, puzzleSize } from './constants';
 import { randomBetween } from './utils';
+import { shufflePuzzle } from './shuffle';
 
-let puzzle = [];
+let targetPuzzle2D = [];
+let puzzle_2D = [];
 
+function generatePuzzleTemplateView(targetElement) {
+  for (let i = 0; i < puzzleRowCellSize; i++) {
+    targetPuzzle2D.push(new Array(puzzleRowCellSize));
+  }
 
-while (puzzle.length < puzzleSize) {
-  let isSameWithIndex = false;
-  let random = randomBetween(1, puzzleSize);
-  for (let i = 0; i < puzzle.length; i++) {
-    if (puzzle[i] === random) {
-      isSameWithIndex = true;
+  let tbl = document.createElement('table');
+  tbl.setAttribute('id', 'template-table');
+  tbl.setAttribute('border', '1');
+
+  for (let i = 0; i < puzzleRowCellSize; i++) {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-index', i.toString());
+    for (let j = 0; j < puzzleRowCellSize; j++) {
+      const td = document.createElement('td');
+      td.setAttribute('data-row-index', i.toString());
+      td.setAttribute('data-index', j.toString());
+      const inputEl = document.createElement('input');
+      inputEl.setAttribute('type', 'number');
+      if (i === 0 && j === 0) {
+        inputEl.setAttribute('autofocus', 'true');
+      }
+      inputEl.addEventListener('change', handleTemplateInputChange);
+      td.appendChild(inputEl);
+      tr.appendChild(td);
+    }
+    tbl.appendChild(tr);
+  }
+  const submitBtn = document.createElement('button');
+  submitBtn.setAttribute('id', 'template-submit-btn');
+  submitBtn.textContent = 'ثبت';
+  submitBtn.addEventListener('click', handleTemplateSubmitButtonClick);
+  tbl.appendChild(submitBtn);
+
+  targetElement.appendChild(tbl);
+}
+
+function handleTemplateSubmitButtonClick(e) {
+  const submitBtnEl = document.querySelector('#template-submit-btn');
+  const templateTableEl = document.querySelector('#template-table');
+  submitBtnEl.removeEventListener('click', handleTemplateSubmitButtonClick);
+
+  puzzle_2D = shufflePuzzle(targetPuzzle2D);
+
+  templateTableEl.remove();
+
+  generatePuzzleView();
+}
+
+function handleTemplateInputChange(e) {
+  const td = e.target.parentElement;
+  const val = e.target.valueAsNumber;
+
+  const rowIndex = +td.dataset.rowIndex;
+  const cellIndex = +td.dataset.index;
+
+  targetPuzzle2D[rowIndex][cellIndex] = val;
+}
+
+function generatePuzzleArray() {
+  let index = 1;
+
+  targetPuzzle2D = new Array(puzzleRowCellSize);
+  for (let i = 0; i < puzzleRowCellSize; i++) {
+    targetPuzzle2D[i] = new Array(puzzleRowCellSize);
+  }
+
+  for (let i = 0; i < puzzleRowCellSize; i++) {
+    for (let j = 0; j < puzzleRowCellSize; j++) {
+      targetPuzzle2D[i][j] = index++;
     }
   }
-  if (isSameWithIndex === false)
-    puzzle.push(random);
-}
 
+  index = 0;
 
-const puzzle_2D = [];
-let index = 0;
+  const puzzle = [];
 
-for (let i = 0; i < puzzleRowCellSize; i++) {
-  const U = [];
-  for (let j = index; j < index + puzzleRowCellSize; j++) {
-    U.push(puzzle[j]);
+  while (puzzle.length < puzzleSize) {
+    let isSameWithIndex = false;
+    let random = randomBetween(1, puzzleSize);
+    for (let i = 0; i < puzzle.length; i++) {
+      if (puzzle[i] === random) {
+        isSameWithIndex = true;
+      }
+    }
+    if (isSameWithIndex === false) puzzle.push(random);
   }
-  puzzle_2D.push(U);
-  index += puzzleRowCellSize;
+
+  for (let i = 0; i < puzzleRowCellSize; i++) {
+    const U = [];
+    for (let j = index; j < index + puzzleRowCellSize; j++) {
+      U.push(puzzle[j]);
+    }
+    puzzle_2D.push(U);
+    index += puzzleRowCellSize;
+  }
 }
 
-function generate_puzzle() {
+function generatePuzzleView() {
   let tbl = document.createElement('table');
   tbl.setAttribute('id', 'table');
   tbl.setAttribute('border', '1');
@@ -41,10 +114,7 @@ function generate_puzzle() {
       const td = document.createElement('td');
       td.setAttribute('data-row-index', i.toString());
       td.setAttribute('data-index', j.toString());
-      if (puzzle_2D[i][j] !== puzzleSize)
-        td.textContent = puzzle_2D[i][j];
-      else
-        td.textContent = '';
+      if (puzzle_2D[i][j] !== puzzleSize) td.textContent = puzzle_2D[i][j]; else td.textContent = '';
       td.addEventListener('click', handleItemClick);
       tr.appendChild(td);
     }
@@ -55,10 +125,9 @@ function generate_puzzle() {
 
 function checkPuzzleSolved() {
   let isSolved = true;
-  let index = 0;
   for (let i = 0; i < puzzleRowCellSize; i++) {
     for (let j = 0; j < puzzleRowCellSize; j++) {
-      if (puzzle_2D[i][j] !== index) {
+      if (puzzle_2D[i][j] !== targetPuzzle2D[i][j]) {
         isSolved = false;
         break;
       }
@@ -108,4 +177,15 @@ function handleItemClick(e) {
   checkPuzzleSolved();
 }
 
-generate_puzzle();
+function init() {
+  const isCustom = confirm('do you want to set target puzzle?');
+
+  if (isCustom) {
+    generatePuzzleTemplateView(document.querySelector('#puzzle'));
+  } else {
+    generatePuzzleArray();
+    generatePuzzleView();
+  }
+}
+
+init();
