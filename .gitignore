@@ -1,2 +1,9 @@
-.idea
-.vscode
+# idea
+.idea/
+.vscode/
+
+# libs
+node_modules/
+
+# build
+dist/
