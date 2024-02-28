@@ -1,35 +1,35 @@
 import { puzzleRowCellSize, puzzleSize } from './constants';
 import { randomBetween } from './utils';
 
-let puzzle = [];
-
-
-while (puzzle.length < puzzleSize) {
-  let isSameWithIndex = false;
-  let random = randomBetween(1, puzzleSize);
-  for (let i = 0; i < puzzle.length; i++) {
-    if (puzzle[i] === random) {
-      isSameWithIndex = true;
-    }
-  }
-  if (isSameWithIndex === false)
-    puzzle.push(random);
-}
-
-
 const puzzle_2D = [];
-let index = 0;
 
-for (let i = 0; i < puzzleRowCellSize; i++) {
-  const U = [];
-  for (let j = index; j < index + puzzleRowCellSize; j++) {
-    U.push(puzzle[j]);
+function generatePuzzleArray() {
+  const puzzle = [];
+
+  while (puzzle.length < puzzleSize) {
+    let isSameWithIndex = false;
+    let random = randomBetween(1, puzzleSize);
+    for (let i = 0; i < puzzle.length; i++) {
+      if (puzzle[i] === random) {
+        isSameWithIndex = true;
+      }
+    }
+    if (isSameWithIndex === false) puzzle.push(random);
   }
-  puzzle_2D.push(U);
-  index += puzzleRowCellSize;
+
+  let index = 0;
+
+  for (let i = 0; i < puzzleRowCellSize; i++) {
+    const U = [];
+    for (let j = index; j < index + puzzleRowCellSize; j++) {
+      U.push(puzzle[j]);
+    }
+    puzzle_2D.push(U);
+    index += puzzleRowCellSize;
+  }
 }
 
-function generate_puzzle() {
+function generatePuzzleView() {
   let tbl = document.createElement('table');
   tbl.setAttribute('id', 'table');
   tbl.setAttribute('border', '1');
@@ -41,10 +41,7 @@ function generate_puzzle() {
       const td = document.createElement('td');
       td.setAttribute('data-row-index', i.toString());
       td.setAttribute('data-index', j.toString());
-      if (puzzle_2D[i][j] !== puzzleSize)
-        td.textContent = puzzle_2D[i][j];
-      else
-        td.textContent = '';
+      if (puzzle_2D[i][j] !== puzzleSize) td.textContent = puzzle_2D[i][j]; else td.textContent = '';
       td.addEventListener('click', handleItemClick);
       tr.appendChild(td);
     }
@@ -108,4 +105,5 @@ function handleItemClick(e) {
   checkPuzzleSolved();
 }
 
-generate_puzzle();
+generatePuzzleArray();
+generatePuzzleView();
