@@ -1,4 +1,4 @@
-import { puzzleSize, shuffleRate } from './constants';
+import { emptyCellChar, shuffleRate } from './constants';
 
 export function shufflePuzzle(basePuzzle) {
   const puzzle = structuredClone(basePuzzle);
@@ -6,7 +6,7 @@ export function shufflePuzzle(basePuzzle) {
   let emptyCellRow, emptyCellCol;
   for (let i = 0; i < puzzle.length; i++) {
     for (let j = 0; j < puzzle[i].length; j++) {
-      if (puzzle[i][j] === puzzleSize) {
+      if (puzzle[i][j] === emptyCellChar) {
         emptyCellRow = i;
         emptyCellCol = j;
         break;
@@ -23,7 +23,7 @@ export function shufflePuzzle(basePuzzle) {
 
     if (newRow >= 0 && newRow < puzzle.length && newCol >= 0 && newCol < puzzle[0].length) {
       puzzle[emptyCellRow][emptyCellCol] = puzzle[newRow][newCol];
-      puzzle[newRow][newCol] = puzzleSize;
+      puzzle[newRow][newCol] = emptyCellChar;
       emptyCellRow = newRow;
       emptyCellCol = newCol;
     }
