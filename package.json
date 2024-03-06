@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "webpack --config webpack.production.config.js",
-    "dev": "webpack --config webpack.production.config.js --watch"
+    "dev": "webpack --config webpack.development.config.js --watch"
   },
   "keywords": [],
   "author": "devalimotahari",

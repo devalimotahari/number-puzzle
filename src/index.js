@@ -57,7 +57,6 @@ function handleTemplateSubmitButtonClick(e) {
   submitBtnEl.removeEventListener('click', handleTemplateSubmitButtonClick);
 
   puzzle_2D = shufflePuzzle(targetPuzzle2D);
-  console.log({ targetPuzzle2D, puzzle_2D });
 
   templateTableEl.remove();
 
@@ -82,11 +81,9 @@ function generatePuzzleArray() {
   let index = 1;
 
   targetPuzzle2D = new Array(puzzleRowCellSize);
-  for (let i = 0; i < puzzleRowCellSize; i++) {
-    targetPuzzle2D[i] = new Array(puzzleRowCellSize);
-  }
 
   for (let i = 0; i < puzzleRowCellSize; i++) {
+    targetPuzzle2D[i] = new Array(puzzleRowCellSize);
     for (let j = 0; j < puzzleRowCellSize; j++) {
       targetPuzzle2D[i][j] = index++;
     }
@@ -95,18 +92,30 @@ function generatePuzzleArray() {
   index = 0;
 
   const puzzle = [];
+  let lastNumIndex = null;
 
   while (puzzle.length < puzzleSize) {
-    let isSameWithIndex = false;
+    let isDuplicate = false;
     let random = randomBetween(1, puzzleSize);
     for (let i = 0; i < puzzle.length; i++) {
       if (puzzle[i] === random) {
-        isSameWithIndex = true;
+        isDuplicate = true;
       }
     }
-    if (isSameWithIndex === false) puzzle.push(random);
+    if (isDuplicate === false) {
+      if (random === puzzleSize) {
+        lastNumIndex = index;
+      }
+      puzzle.push(random);
+      index += 1;
+    }
   }
 
+  if (lastNumIndex !== null) {
+    puzzle[lastNumIndex] = emptyCellChar;
+  }
+
+  index = 0;
   for (let i = 0; i < puzzleRowCellSize; i++) {
     const U = [];
     for (let j = index; j < index + puzzleRowCellSize; j++) {
