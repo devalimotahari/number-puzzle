@@ -5,6 +5,13 @@ import { shufflePuzzle } from './shuffle';
 let targetPuzzle2D = [];
 let puzzle_2D = [];
 
+let moveCount = 0;
+let timeSpentInSeconds = 0;
+
+let moveCountLimit = 0;
+let timeInSecondsLimit = 0;
+
+
 function generatePuzzleTemplateView(targetElement) {
   for (let i = 0; i < puzzleRowCellSize; i++) {
     targetPuzzle2D.push(Array.from(new Array(puzzleRowCellSize), () => emptyCellChar));
@@ -162,15 +169,28 @@ function checkPuzzleSolved() {
   }
 
   if (isSolved) {
-    document.querySelectorAll('td').forEach(td => {
-      td.removeEventListener('click', handleItemClick);
-    });
+    stopGame();
     document.querySelector('#app').append('you win');
     alert('you win!');
   }
 }
 
+function stopGame() {
+  document.querySelectorAll('td').forEach(td => {
+    td.removeEventListener('click', handleItemClick);
+  });
+  if (timerIntervalId) {
+    clearInterval(timerIntervalId);
+  }
+}
+
+
+let timerIntervalId = null;
+
 function moveButton(target, newRowIndex, newColIndex) {
+  if (!timerIntervalId) {
+    timerIntervalId = setInterval(checkTime, 1000);
+  }
   const clickedRowIndex = +target.dataset.rowIndex;
   const clickedColIndex = +target.dataset.index;
 
@@ -182,6 +202,13 @@ function moveButton(target, newRowIndex, newColIndex) {
   cell.textContent = '';
   puzzle_2D[newRowIndex][newColIndex] = puzzle_2D[clickedRowIndex][clickedColIndex];
   puzzle_2D[clickedRowIndex][clickedColIndex] = emptyCellChar;
+
+  const counterEl = document.querySelector('#counter-text');
+  counterEl.textContent = (++moveCount).toString();
+  if (moveCount >= moveCountLimit) {
+    stopGame();
+    alert('your move count reached!');
+  }
 }
 
 function handleItemClick(e) {
@@ -250,6 +277,25 @@ function init() {
   } else {
     generatePuzzleArray();
     generatePuzzleView();
+  }
+
+  const time = prompt('how much time do you want to have? (seconds)', '30');
+  const moves = prompt('how many moves do you want to have?', '20');
+
+  moveCountLimit = +moves;
+  timeInSecondsLimit = +time;
+
+  document.querySelector('#counter-limit-text').textContent = moveCountLimit.toString();
+  document.querySelector('#counter-text').textContent = moveCount.toString();
+  document.querySelector('#timer-limit-text').textContent = timeInSecondsLimit.toString();
+  document.querySelector('#timer-text').textContent = timeSpentInSeconds.toString();
+}
+
+function checkTime() {
+  document.querySelector('#timer-text').textContent = (++timeSpentInSeconds).toString();
+  if (timeSpentInSeconds >= timeInSecondsLimit) {
+    stopGame();
+    alert('your time ended!');
   }
 }
 
