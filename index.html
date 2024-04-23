@@ -11,33 +11,46 @@
 
 <body>
 
-<div id="app" class="flex-center">
-    <div class="flex-center">
-        <div id="counter-div" class="flex-between">
-            <div>
-                <span>move count:</span>
-                <span id="counter-text"></span>
+    <div id="app" class="flex-center">
+        <div class="flex-center">
+            <div id="counter-div" class="flex-between">
+                <div>
+                    <span>move count:</span>
+                    <span id="counter-text"></span>
+                </div>
+                <div>
+                    <span>count limit:</span>
+                    <span id="counter-limit-text"></span>
+                </div>
             </div>
-            <div>
-                <span>count limit:</span>
-                <span id="counter-limit-text"></span>
+            <div id="timer-div" class="flex-between">
+                <div>
+                    <span>time spent:</span>
+                    <span id="timer-text"></span>
+                </div>
+                <div>
+                    <span>time limit:</span>
+                    <span id="timer-limit-text"></span>
+                </div>
             </div>
-        </div>
-        <div id="timer-div" class="flex-between">
-            <div>
-                <span>time spent:</span>
-                <span id="timer-text"></span>
-            </div>
-            <div>
-                <span>time limit:</span>
-                <span id="timer-limit-text"></span>
-            </div>
-        </div>
-    </div>
-    <div id="puzzle"></div>
-</div>
 
-<script src="./dist/main.js"></script>
+            <div id="solve-div" class="flex-between" style="display:none;">
+                <div>
+                    <label for="solve-methods">Choose an algorithm:</label>
+                    <select name="solve-methods" id="solve-methods">
+                        <option value="bfs">BFS</option>
+                        <option value="dfs">DFS</option>
+                    </select>
+                </div>
+
+                <button id="solve-button">solve</button>
+            </div>
+
+        </div>
+        <div id="puzzle"></div>
+    </div>
+
+    <script src="./dist/main.js"></script>
 
 </body>
 

@@ -2,14 +2,19 @@ import { emptyCellChar, puzzleElement, puzzleRowCellSize, puzzleSize } from './c
 import { randomBetween } from './utils';
 import { shufflePuzzle } from './shuffle';
 
-let targetPuzzle2D = [];
-let puzzle_2D = [];
+export let targetPuzzle2D = [];
+export let puzzle_2D = [];
 
 let moveCount = 0;
 let timeSpentInSeconds = 0;
 
 let moveCountLimit = 0;
 let timeInSecondsLimit = 0;
+
+let isAutoSolving = false;
+
+
+
 
 
 function generatePuzzleTemplateView(targetElement) {
@@ -70,6 +75,13 @@ function handleTemplateSubmitButtonClick(e) {
   generatePuzzleView();
 
   generateTargetPuzzleView(puzzleElement);
+
+  const solveDivEl = document.querySelector('#solve-div');
+  solveDivEl.style.display = 'flex';
+
+  const solveBtnEl = document.querySelector('#solve-button');
+  solveBtnEl.addEventListener('click', handleAutoSolveButtonClick);
+
 }
 
 function handleTemplateInputChange(e) {
@@ -187,7 +199,7 @@ function stopGame() {
 
 let timerIntervalId = null;
 
-function moveButton(target, newRowIndex, newColIndex) {
+export function moveButton(target, newRowIndex, newColIndex) {
   if (!timerIntervalId) {
     timerIntervalId = setInterval(checkTime, 1000);
   }
@@ -203,11 +215,13 @@ function moveButton(target, newRowIndex, newColIndex) {
   puzzle_2D[newRowIndex][newColIndex] = puzzle_2D[clickedRowIndex][clickedColIndex];
   puzzle_2D[clickedRowIndex][clickedColIndex] = emptyCellChar;
 
-  const counterEl = document.querySelector('#counter-text');
-  counterEl.textContent = (++moveCount).toString();
-  if (moveCount >= moveCountLimit) {
-    stopGame();
-    alert('your move count reached!');
+  if (!isAutoSolving) {
+    const counterEl = document.querySelector('#counter-text');
+    counterEl.textContent = (++moveCount).toString();
+    if (moveCount >= moveCountLimit) {
+      stopGame();
+      alert('your move count reached!');
+    }
   }
 }
 
@@ -230,6 +244,30 @@ function handleItemClick(e) {
     moveButton(e.target, rowIndex + 1, cellIndex);
   }
   checkPuzzleSolved();
+}
+
+
+function handleAutoSolveButtonClick(e) {
+  const solveBtnEl = document.querySelector('#solve-button');
+  solveBtnEl.removeEventListener('click', handleAutoSolveButtonClick);
+
+  const solveDivEl = document.querySelector('#solve-div');
+  solveDivEl.style.display = 'none';
+
+  const solveSelectEl = document.querySelector('#solve-methods');
+  
+  const solverWorker = new Worker(new URL('./solve.js', import.meta.url));
+
+  solverWorker.postMessage({
+    algorithm:solveSelectEl.value,
+    initialState: puzzle_2D,
+    goalState: targetPuzzle2D
+  });
+  
+  solverWorker.onmessage = (e) => {
+    console.log("Message received from worker", e.data);
+  };
+
 }
 
 function generateTargetPuzzleView(targetElement) {
@@ -292,11 +330,17 @@ function init() {
 }
 
 function checkTime() {
-  document.querySelector('#timer-text').textContent = (++timeSpentInSeconds).toString();
-  if (timeSpentInSeconds >= timeInSecondsLimit) {
-    stopGame();
-    alert('your time ended!');
+  if (!isAutoSolving) {
+    document.querySelector('#timer-text').textContent = (++timeSpentInSeconds).toString();
+    if (timeSpentInSeconds >= timeInSecondsLimit) {
+      stopGame();
+      alert('your time ended!');
+    }
   }
+}
+
+export function setIsAutoSolving(isAuto = false) {
+  isAutoSolving = isAuto;
 }
 
 init();
