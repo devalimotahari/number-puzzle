@@ -1,4 +1,4 @@
-class Node {
+class PuzzleNode {
     constructor(state, parent, depth, move) {
         this.state = state;
         this.parent = parent;
@@ -26,28 +26,28 @@ class PuzzleSolver {
                         const newState = JSON.parse(JSON.stringify(state));
                         newState[i][j] = newState[i - 1][j];
                         newState[i - 1][j] = null;
-                        neighbors.push(new Node(newState, null, 0, { type: 'down', row: i, col: j }));
+                        neighbors.push(new PuzzleNode(newState, null, 0, { type: 'down', row: i, col: j }));
                     }
                     // move up
                     if (i < state.length - 1) {
                         const newState = JSON.parse(JSON.stringify(state));
                         newState[i][j] = newState[i + 1][j];
                         newState[i + 1][j] = null;
-                        neighbors.push(new Node(newState, null, 0, { type: 'up', row: i, col: j }));
+                        neighbors.push(new PuzzleNode(newState, null, 0, { type: 'up', row: i, col: j }));
                     }
                     // move right
                     if (j > 0) {
                         const newState = JSON.parse(JSON.stringify(state));
                         newState[i][j] = newState[i][j - 1];
                         newState[i][j - 1] = null;
-                        neighbors.push(new Node(newState, null, 0, { type: 'right', row: i, col: j }));
+                        neighbors.push(new PuzzleNode(newState, null, 0, { type: 'right', row: i, col: j }));
                     }
                     // move left
                     if (j < state[i].length - 1) {
                         const newState = JSON.parse(JSON.stringify(state));
                         newState[i][j] = newState[i][j + 1];
                         newState[i][j + 1] = null;
-                        neighbors.push(new Node(newState, null, 0, { type: 'left', row: i, col: j }));
+                        neighbors.push(new PuzzleNode(newState, null, 0, { type: 'left', row: i, col: j }));
                     }
                 }
             }
@@ -56,10 +56,8 @@ class PuzzleSolver {
     }
 
     bfs(initialState) {
-        const queue = [new Node(initialState, null, 0, null)];
+        const queue = [new PuzzleNode(initialState, null, 0, null)];
         const visited = new Set();
-        let moveCount = 0;
-
 
         while (queue.length > 0) {
             const node = queue.shift();
@@ -70,8 +68,7 @@ class PuzzleSolver {
             const neighbors = this.getNeighbors(node.state);
             for (const neighbor of neighbors) {
                 if (!visited.has(JSON.stringify(neighbor.state))) {
-                    queue.push(new Node(neighbor.state, node, node.depth + 1, neighbor.move));
-                    moveCount += 1;
+                    queue.push(new PuzzleNode(neighbor.state, node, node.depth + 1, neighbor.move));
                 }
             }
         }
@@ -79,7 +76,7 @@ class PuzzleSolver {
     }
 
     dfs(initialState) {
-        const stack = [new Node(initialState, null, 0, null)];
+        const stack = [new PuzzleNode(initialState, null, 0, null)];
         const visited = new Set();
 
         while (stack.length > 0) {
@@ -91,7 +88,7 @@ class PuzzleSolver {
             const neighbors = this.getNeighbors(node.state);
             for (const neighbor of neighbors) {
                 if (!visited.has(JSON.stringify(neighbor.state))) {
-                    stack.push(new Node(neighbor.state, node, node.depth + 1, neighbor.move));
+                    stack.push(new PuzzleNode(neighbor.state, node, node.depth + 1, neighbor.move));
                 }
             }
         }
