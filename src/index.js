@@ -1,5 +1,5 @@
 import { emptyCellChar, puzzleElement, puzzleRowCellSize, puzzleSize } from './constants';
-import { randomBetween } from './utils';
+import { delay, randomBetween } from './utils';
 import { shufflePuzzle } from './shuffle';
 
 export let targetPuzzle2D = [];
@@ -12,9 +12,6 @@ let moveCountLimit = 0;
 let timeInSecondsLimit = 0;
 
 let isAutoSolving = false;
-
-
-
 
 
 function generatePuzzleTemplateView(targetElement) {
@@ -255,17 +252,45 @@ function handleAutoSolveButtonClick(e) {
   solveDivEl.style.display = 'none';
 
   const solveSelectEl = document.querySelector('#solve-methods');
-  
+
   const solverWorker = new Worker(new URL('./solve.js', import.meta.url));
 
   solverWorker.postMessage({
-    algorithm:solveSelectEl.value,
+    algorithm: solveSelectEl.value,
     initialState: puzzle_2D,
-    goalState: targetPuzzle2D
+    goalState: targetPuzzle2D,
   });
-  
-  solverWorker.onmessage = (e) => {
-    console.log("Message received from worker", e.data);
+
+  solverWorker.onmessage = async (e) => {
+    console.log('Message received from worker', e.data);
+
+    setIsAutoSolving(true);
+
+    if (Array.isArray(e.data)) {
+
+      document.querySelector('#solve-answer').style.display = 'block';
+      document.querySelector('#solve-answer-number').textContent = (e.data.length - 1).toString();
+
+      for (let node of e.data) {
+        if (!node.move) continue;
+
+        const moveType = node.move.type;
+        const newRow = node.move.row;
+        const newCol = node.move.col;
+        const oldRow = moveType === 'up' ? newRow + 1 : (moveType === 'down' ? newRow - 1 : newRow);
+        const oldCol = moveType === 'left' ? newCol + 1 : (moveType === 'right' ? newCol - 1 : newCol);
+
+        const tileEl = document.querySelector(`#table td[data-row-index="${oldRow}"][data-index="${oldCol}"]`);
+        if (!tileEl) continue;
+
+        console.log({ oldRow, newRow, oldCol, newCol, tileEl });
+
+        moveButton(tileEl, newRow, newCol);
+
+        await delay(500);
+      }
+    }
+
   };
 
 }
@@ -339,7 +364,7 @@ function checkTime() {
   }
 }
 
-export function setIsAutoSolving(isAuto = false) {
+function setIsAutoSolving(isAuto = false) {
   isAutoSolving = isAuto;
 }
 
